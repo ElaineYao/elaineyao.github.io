@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Elaine Yao">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if page.dont_index %}
+  <meta name="robots" content="noindex,nofollow">
+  {% endif %}
+  <meta name="robots" content="noindex,nofollow">
+  {% if page.title %}
+  <title> {{ page.title }} |  Elaine Yao </title>
+  {% else %}
+  <title>Elaine Yao | Security Researcher, Fortinet</title>
+  {% endif %}
+
+  <link rel="icon" href="/flower.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href={{ get_url(path="css/normalize.css") }}>
+  <link rel="stylesheet" href={{ get_url(path="css/default.css") }}>
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.1/css/academicons.min.css" integrity="sha512-b1ASx0WHgVFL5ZQhTgiPWX+68KjS38Jk87jg7pe+qC7q9YkEtFq0z7xCglv7qGIs/68d3mAp+StfC8WKC5SSAg==" crossorigin="anonymous"/>
+
+  <!-- Load source code pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+
+  {% block rss %}
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path="post/atom.xml", trailing_slash=false) }}">
+  {% endblock %}
+
+</head>
+
+<body>
+  <header>
+    <h1 class="name"><a class="unstyled-link" href="/">Elaine Yao</a></h1>
+    <nav>
+      <a class="unstyled-link nav-item" href="/#publications">Publications</a>
+      <a class="unstyled-link nav-item" href="/#posts">Posts</a>
+      <a class="unstyled-link nav-item" href="/files/resume-Yao.pdf">CV</a>
+    </nav>
+  </header>
+  <section class="section">
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </section>
+
+<footer>
+  &copy;&nbsp;2024 Elaine Yao &middot; Built using <a href="https://www.getzola.org/">Zola</a>
+</footer>
+</body>
+
+</html>
