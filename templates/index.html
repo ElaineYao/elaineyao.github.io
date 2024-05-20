@@ -6,8 +6,8 @@
 <div id="contact">
   <div class="portrait" style="background-image: url('/img/headshot.png');">
   </div>
-
-  <div class="portrait-title">
+  
+  <!-- <div class="portrait-title">
     <h3>PhD Candidate</h3>
 
     <h3>
@@ -15,14 +15,27 @@
         <span itemprop="name">Cornell University</span>
       </a>
     </h3>
-  </div>
+  </div> -->
 
-  <div class="contact-links">
-    {{ m::contact(link="mailto:rachit.nigam12@gmail.com", classes="fa fa-envelope") }}
-    {{ m::contact(link="//twitter.com/notypes", classes="fab fa-twitter") }}
-    {{ m::contact(link="//github.com/rachitnigam", classes="fab fa-github") }}
-    {{ m::contact(link="//scholar.google.com/citations?user=RNL2GjEAAAAJ", classes="ai ai-google-scholar") }}
-  </div>
+    <div class="portrait-title">
+      <h3>PhD Student</h3>
+
+      <h3>
+        <a href="https://cornell.edu" target="_blank" itemprop="url" rel="noopener">
+          <span itemprop="name">Cornell University</span>
+        </a>
+      </h3>
+      <h3>Email: elainedv111@gmail.com </h3>
+      <br>
+
+      <div class="contact-links">
+        {{ m::contact(link="//twitter.com/ElaineYingaoYao", classes="fab fa-twitter") }}
+        {{ m::contact(link="//github.com/ElaineYao", classes="fab fa-github") }}
+        {{ m::contact(link="//scholar.google.ca/citations?user=Sn4v_SoAAAAJ&hl=en", classes="ai ai-google-scholar") }}
+        {{ m::contact(link="//www.linkedin.com/in/yingao-elaine-yao-61b278194/", classes="fab fa-linkedin") }}
+      </div>
+    </div>
+  
 </div>
 
 <!-- Bio -->
@@ -84,6 +97,20 @@
       <i class="fa fa-angle-double-right"></i>
     </a>
   </div>
+</section>
+
+<!-- Services -->
+<section>
+  {{ m::anchor_heading(content="Services") }}
+  {% set service = get_section(path="service/_index.md") %}
+
+  <!-- Artifact Program PC Services -->
+  {{ m::anchor_heading(content="Artifact Program PC",size="3") }}
+  {% set items = config.extra.service_items %}
+  {% for post in service.pages | filter(attribute="extra.type", value="aec") | sort(attribute="date") | reverse | slice(end=items) %}
+  {{ m::generate_service(service=post) }}
+  {% endfor %}
+  
 </section>
 
 {% endblock content %}

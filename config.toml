@@ -22,9 +22,12 @@ skip_prefixes = ["https://twitter.com/"]
 [extra]
 news_items = 5
 post_items = 7
+service_items = 7
 
 # Links to author webpages
 author = [
   { name = "Pritam Dash", link = "https://dashpritam.github.io/" },
   { name = "Karthik Pattabiraman", link = "https://blogs.ubc.ca/karthik/" },
 ]
+
+

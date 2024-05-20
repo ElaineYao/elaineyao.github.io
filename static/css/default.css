@@ -1,12 +1,20 @@
 /* Some CSS cribed from Emina Torlak's webpage: https://homes.cs.washington.edu/~emina/ */
 /* Contact & Bio */
 /** Contact */
-#contact {
+/* #contact {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+} */
+
+#contact {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
+
 
 .portrait {
   width: 200px;
@@ -35,11 +43,19 @@
   border: none;
 }
 
-.contact-links {
+/* .contact-links {
   display: flex;
   justify-content: space-between;
-  width: 200px;
-}
+  width: 100px;
+} */
+
+.contact-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+} 
+
 
 .contact-link-item {
   flex: auto;

@@ -122,3 +122,15 @@
   </div>
 </div>
 {% endmacro publication %}
+
+{# Styling for a service item #}
+{% macro generate_service(service) %}
+<div class="blurb">
+  <div class="date">{{ service.date | date(format="%Y") }}</div>
+  <div class="description">
+    {{ service.content | safe }}
+  </div>
+</div>
+{% endmacro service %}
+
+

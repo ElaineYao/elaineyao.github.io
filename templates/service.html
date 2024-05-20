@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block content %}
+<section>
+<h2>Service</h2>
+{% set service = get_section(path="service/_index.md") %}
+{% set items = config.extra.service_items %}
+{% for post in service.pages | sort(attribute="date") | reverse %}
+{{ m::generate_service(service=post) }}
+{% endfor %}
+</section>
+
+{% endblock content %}
