@@ -25,7 +25,7 @@
           <span itemprop="name">Cornell University</span>
         </a>
       </h3>
-      <h3>Email: elainedv111@gmail.com </h3>
+      <h3>Email: elainey@cs.cornell.edu </h3>
       <br>
 
       <div class="contact-links">
@@ -105,7 +105,7 @@
   {% set service = get_section(path="service/_index.md") %}
 
   <!-- Artifact Program PC Services -->
-  {{ m::anchor_heading(content="Artifact Program PC",size="3") }}
+  {{ m::anchor_heading(content="Artifact Evaluation Program Committee",size="3") }}
   {% set items = config.extra.service_items %}
   {% for post in service.pages | filter(attribute="extra.type", value="aec") | sort(attribute="date") | reverse | slice(end=items) %}
   {{ m::generate_service(service=post) }}
