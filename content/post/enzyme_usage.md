@@ -17,45 +17,33 @@ I will just add some of my understandings on these examples and also provide som
 
 ### Return value of forward and reverse mode
 
-For this function, 
-```math
-f(x, y) := x y + \frac{1}{y}
-```
+For this function, $f(x, y) := xy + \frac{1}{y}$,
+the “derivative” (i.e., the Jacobian) of this function is a row vector with two entries:
 
-The “derivative” (i.e., the Jacobian) of this function is a row vector with two entries:
-
-```math
-\mathbf{J} = \begin{bmatrix}
+$$
+\begin{bmatrix}
 \frac{\partial f}{\partial x} & \frac{\partial f}{\partial y}
 \end{bmatrix}
-```
+$$
+
 
 - `__enzyme_fwddiff`
 
     *forward mode*: compute  
-   ```math
+   $$
    d\mathbf{f} := \mathbf{J} \cdot d\mathbf{x},
-   ```  
-   where  
-   ```math
-   d\mathbf{x} = [dx\;\; dy]^\top
-   ```
+   $$
+   where $d\mathbf{x} = [dx\;\; dy]^\top$
    In this case, the dimension of result of the forward mode is a scalar, i.e., the same as the dimension of the output.
 
 - `__enzyme_autodiff`
 
     *reverse mode* differentiation*: compute  
-   ```math
+   $$
    \mu := \mathbf{J}^\top \lambda
-   ```
-   here 
-   ```math
-   \lambda 
-   ```
-   is a scalar, for example, if we want the derivative, then 
-   ```math
-   \lambda = 1
-   ```
+   $$
+   here $\lambda$
+   is a scalar, for example, if we want the derivative, then $\lambda = 1$
    In this case, the dimention of the result of the reverse mode is a vector, i.e., the same as the dimension of the input.
 
    In the later sections applying these modes, we will focuse on how to pass $d\mathbf{x}$ and $\lambda$, as well as which variable stores the output.
