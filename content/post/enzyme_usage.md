@@ -1,7 +1,7 @@
 +++
 title = "how to use enzyme to compute derivatives"
 date = 2025-12-02T10:35:05.787893-05:00
-draft = true
+draft = false
 
 [extra]
 authors = []
