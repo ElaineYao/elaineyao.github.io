@@ -18,6 +18,8 @@ authors = [
 publication = "IEEE/ACM International Conference on Automated Software Engineering. "
 publication_short = "ASE"
 
+award = "ACM SIGSOFT Distinguished Paper Award"
+
 pdf = "/files/pubs/ase26_nbtest.pdf"
 urls = [
   { name = "Code", url = "https://github.com/seal-research/NBTest" }
