@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - All Posts</title>
+    <link rel="self" type="application/atom+xml" href="https://elaineyao.github.io/post/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://elaineyao.github.io/post/"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2025-12-02T10:35:05.787893-05:00</updated>
+    <id>https://elaineyao.github.io/post/atom.xml</id>
+    <entry xml:lang="en">
+        <title>how to use enzyme to compute derivatives</title>
+        <published>2025-12-02T10:35:05.787893-05:00</published>
+        <updated>2025-12-02T10:35:05.787893-05:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://elaineyao.github.io/post/enzyme-usage/"/>
+        <id>https://elaineyao.github.io/post/enzyme-usage/</id>
+        
+        <content type="html" xml:base="https://elaineyao.github.io/post/enzyme-usage/">&lt;p&gt;The objective functions in enzyme can be classified into &lt;em&gt;Return-By-Value&lt;&#x2F;em&gt; and &lt;em&gt;Return-by-Reference&lt;&#x2F;em&gt;.
+In each case, enzyme can use two modes to get the derivatives, i.e., &lt;code&gt;__enzyme_fwddiff&lt;&#x2F;code&gt; (forward) and &lt;code&gt;__enzyme_autodiff&lt;&#x2F;code&gt; (reverse).
+&lt;a rel=&quot;noopener nofollow noreferrer&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;enzyme.mit.edu&#x2F;getting_started&#x2F;Examples&#x2F;&quot;&gt;Enzyme’s documentation&lt;&#x2F;a&gt; provides some examples, but lacks explanation.
+I will just add some of my understandings on these examples and also provide some lessons learnt while using Eigen library for matrix computation.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;return-value-of-forward-and-reverse-mode&quot;&gt;Return value of forward and reverse mode&lt;&#x2F;h3&gt;
+&lt;p&gt;For this function, $f(x, y) := xy + \frac{1}{y}$,
+the “derivative” (i.e., the Jacobian) of this function is a row vector with two entries:&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{bmatrix}
+\frac{\partial f}{\partial x} &amp;amp; \frac{\partial f}{\partial y}
+\end{bmatrix}
+$$&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;__enzyme_fwddiff&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;em&gt;forward mode&lt;&#x2F;em&gt;: compute&lt;br &#x2F;&gt;
+$$
+d\mathbf{f} := \mathbf{J} \cdot d\mathbf{x},
+$$
+where $d\mathbf{x} = [dx;; dy]^\top$
+In this case, the dimension of result of the forward mode is a scalar, i.e., the same as the dimension of the output.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;__enzyme_autodiff&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;em&gt;reverse mode&lt;&#x2F;em&gt; differentiation*: compute&lt;br &#x2F;&gt;
+$$
+\mu := \mathbf{J}^\top \lambda
+$$
+here $\lambda$
+is a scalar, for example, if we want the derivative, then $\lambda = 1$
+In this case, the dimention of the result of the reverse mode is a vector, i.e., the same as the dimension of the input.&lt;&#x2F;p&gt;
+&lt;p&gt;In the later sections applying these modes, we will focuse on how to pass $d\mathbf{x}$ and $\lambda$, as well as which variable stores the output.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;translation-unit-in-the-example-code-snippet&quot;&gt;Translation unit in the example code snippet&lt;&#x2F;h3&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;#include &amp;lt;iostream&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#include &amp;lt;enzyme&#x2F;enzyme&amp;gt; 
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;int enzyme_dup;
+&lt;&#x2F;span&gt;&lt;span&gt;int enzyme_dupnoneed;
+&lt;&#x2F;span&gt;&lt;span&gt;int enzyme_out;
+&lt;&#x2F;span&gt;&lt;span&gt;int enzyme_const;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;template &amp;lt; typename return_type, typename ... T &amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;return_type __enzyme_fwddiff(void*, T ... );
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;template &amp;lt; typename return_type, typename ... T &amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;return_type __enzyme_autodiff(void*, T ... );
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;forward-mode&quot;&gt;Forward mode&lt;&#x2F;h3&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;double df_dx = __enzyme_fwddiff&amp;lt;double&amp;gt;((void*)f, enzyme_dup, x, dx); 
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Here, &lt;code&gt;double&lt;&#x2F;code&gt; is the &lt;code&gt;return_type&lt;&#x2F;code&gt;. The shadow argument &lt;code&gt;dx&lt;&#x2F;code&gt; stores the directional derivative.&lt;&#x2F;p&gt;
+&lt;p&gt;e.g., if &lt;code&gt;x&lt;&#x2F;code&gt; is a vector of inputs, then&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+df_dx = \frac{df}{dx_{0}} \cdot dx[0] + \frac{df}{dx_{1}} \cdot dx[1] + …
+$$&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;return-by-value&quot;&gt;Return-By-Value&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;double f(double x) { return x * x; }
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;In this case, we usually use &lt;code&gt;enzyme_dup&lt;&#x2F;code&gt; to annotate the input and the shadow argument (the directioal vectors).
+The return value is the jacobian-vector product (JVP).&lt;&#x2F;p&gt;
+&lt;p&gt;e.g.,&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;double x = 5.0;
+&lt;&#x2F;span&gt;&lt;span&gt;double dx = 1.0;
+&lt;&#x2F;span&gt;&lt;span&gt;double df_dx = __enzyme_fwddiff&amp;lt;double&amp;gt;((void*)f, enzyme_dup, x, dx); 
+&lt;&#x2F;span&gt;&lt;span&gt;printf(&amp;quot;f(x) = %f, f&amp;#39;(x) = %f&amp;quot;, f(x), df_dx);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;return-by-reference&quot;&gt;Return-By-Reference&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;void f(double x, double y, double &amp;amp; output) { output = x * y + 1.0 &#x2F; y; }
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Still we store the direction vector in the shadow argument, and we use another variable for storing the function output, whose shadow argument stores the JVP.&lt;&#x2F;p&gt;
+&lt;p&gt;e.g.,&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;double z = 0;
+&lt;&#x2F;span&gt;&lt;span&gt;double dz = 0;
+&lt;&#x2F;span&gt;&lt;span&gt;#if 1
+&lt;&#x2F;span&gt;&lt;span&gt;__enzyme_fwddiff&amp;lt;void&amp;gt;((void*)f, enzyme_dup, x, dx, 
+&lt;&#x2F;span&gt;&lt;span&gt;                                 enzyme_dup, y, dy, 
+&lt;&#x2F;span&gt;&lt;span&gt;                                 enzyme_dup, &amp;amp;z, &amp;amp;dz);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;z&lt;&#x2F;code&gt; stores the function primal value and &lt;code&gt;dz&lt;&#x2F;code&gt; stores the JVP. We need to pass the reference because we are going to change the value.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;reverse-mode&quot;&gt;Reverse mode&lt;&#x2F;h3&gt;
+&lt;p&gt;Reverse mode computes the vector-Jacobian product (VJP).&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;return-by-value-1&quot;&gt;Return-By-Value&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;struct double2(double x, y;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;auto [mu_x, mu_y] = __enzyme_autodiff&amp;lt;double&amp;gt;((void*)f, enzyme_out, x, enzyme_out, y);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Here, if we use &lt;code&gt;enzyme_out&lt;&#x2F;code&gt; annotation, the default $\lambda = 1$.
+In this case, the output is the gradients themselves.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;return-by-reference-1&quot;&gt;Return-By-Reference&lt;&#x2F;h4&gt;
+&lt;p&gt;It looks like that when using reverse mode, we are mostly using &lt;code&gt;enzyme_out&lt;&#x2F;code&gt; annotation.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;double lambda = 2.0;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;double2 mu = __enzyme_autodiff&amp;lt;double2&amp;gt;((void*)f, enzyme_out, x, 
+&lt;&#x2F;span&gt;&lt;span&gt;                                                  enzyme_out, y, 
+&lt;&#x2F;span&gt;&lt;span&gt;                                                  enzyme_dup, &amp;amp;z, &amp;amp;lambda); 
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The shadow argument w.r.t the output &lt;code&gt;z&lt;&#x2F;code&gt; is the &lt;code&gt;lambda&lt;&#x2F;code&gt;. The way to annotate the output is passing the pointer.
+The function output is the VJP. Again, &lt;code&gt;double2&lt;&#x2F;code&gt; is the return type.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;using-matrix&quot;&gt;Using matrix&lt;&#x2F;h2&gt;
+&lt;p&gt;Only use matrix with fixed size, instead of &lt;code&gt;MatrixXd&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+</feed>
