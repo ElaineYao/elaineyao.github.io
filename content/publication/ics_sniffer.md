@@ -1,5 +1,5 @@
 +++
-title = "Automated Assertion Generation and Regression Testing for Machine Learning Notebooks"
+title = "ICS-Sniper: A Targeted Blackhole Attack on Encrypted ICS Traffic"
 # Add a subtitle here
 # subtitle = ""
 date = 2027-03-22
@@ -21,5 +21,7 @@ authors = [
 publication = "ICS-Sniper: A Targeted Blackhole Attack on Encrypted ICS Traffic. "
 publication_short = "NDSS"
 
+urls = [
+]
 type="conf"
 +++
