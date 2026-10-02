@@ -2,7 +2,7 @@
 title = "Automated Assertion Generation and Regression Testing for Machine Learning Notebooks"
 # Add a subtitle here
 # subtitle = ""
-date = 2027-3-22
+date = 2027-03-22
 draft = false
 
 [extra]
