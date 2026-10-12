@@ -22,7 +22,8 @@ award = "ACM SIGSOFT Distinguished Paper Award"
 
 pdf = "/files/pubs/ase26_nbtest.pdf"
 urls = [
-  { name = "Code", url = "https://github.com/seal-research/NBTest" }
+  { name = "Code", url = "https://github.com/seal-research/NBTest" },
+  { name = "Slides", url = "/files/slides/ase26_nbtest_slides.pdf" }
 ]
 type="conf"
 +++
