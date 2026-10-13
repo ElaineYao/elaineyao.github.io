@@ -26,6 +26,9 @@ service_items = 7
 
 # Links to author webpages
 author = [
+  { name = "Aastha Mehta", link = "https://aasthakm.github.io/"},
+  { name = "Gargi Mitra", link = "https://gargi-mitra.github.io/website/" },
+  { name = "Saikat Dutta", link = "https://www.cs.cornell.edu/~saikatd/" },
   { name = "Pritam Dash", link = "https://dashpritam.github.io/" },
   { name = "Karthik Pattabiraman", link = "https://blogs.ubc.ca/karthik/" },
 ]

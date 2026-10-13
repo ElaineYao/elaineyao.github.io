@@ -11,17 +11,23 @@
 #contact {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 }
 
 
 .portrait {
+  /* don't let the flex row squash the circle into an oval on narrow screens */
+  flex: 0 0 auto;
   width: 200px;
   height: 200px;
+  aspect-ratio: 1 / 1;
   margin: 0 auto;
   border-radius: 50%;
   background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /*** Portrait Title */
