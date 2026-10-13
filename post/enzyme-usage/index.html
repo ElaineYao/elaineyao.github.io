@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<link rel="stylesheet" href="/katex/katex.min.css">
+
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ]
+        });">
+</script>
+
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="author" content="Elaine Yao">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="robots" content="noindex,nofollow">
+  
+  <title> how to use enzyme to compute derivatives |  Elaine Yao </title>
+  
+
+  <link rel="icon" href="/eyicon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href=https://elaineyao.github.io/css/normalize.css>
+  <link rel="stylesheet" href=https://elaineyao.github.io/css/default.css>
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.1/css/academicons.min.css" integrity="sha512-b1ASx0WHgVFL5ZQhTgiPWX+68KjS38Jk87jg7pe+qC7q9YkEtFq0z7xCglv7qGIs/68d3mAp+StfC8WKC5SSAg==" crossorigin="anonymous"/>
+
+  <!-- Load source code pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://elaineyao.github.io/post/atom.xml">
+  
+
+</head>
+
+<body>
+  <header>
+    <h1 class="name"><a class="unstyled-link" href="/">Elaine Yao</a></h1>
+    <nav>
+      <a class="unstyled-link nav-item" href="/#publications">Publications</a>
+      <a class="unstyled-link nav-item" href="/#posts">Posts</a>
+      <a class="unstyled-link nav-item" href="/files/resume-Yao-Elaine.pdf">CV</a>
+    </nav>
+  </header>
+  <section class="section">
+    <div class="container">
+      
+<div class="post-header">
+<h1 class="title">
+  how to use enzyme to compute derivatives
+</h1>
+<div class="date">
+explain AD library enzyme
+</div>
+<p class="date">December 02, 2025</p>
+</div>
+
+<div class="post">
+<p>The objective functions in enzyme can be classified into <em>Return-By-Value</em> and <em>Return-by-Reference</em>.
+In each case, enzyme can use two modes to get the derivatives, i.e., <code>__enzyme_fwddiff</code> (forward) and <code>__enzyme_autodiff</code> (reverse).
+<a rel="noopener nofollow noreferrer" target="_blank" href="https://enzyme.mit.edu/getting_started/Examples/">Enzyme’s documentation</a> provides some examples, but lacks explanation.
+I will just add some of my understandings on these examples and also provide some lessons learnt while using Eigen library for matrix computation.</p>
+<h3 id="return-value-of-forward-and-reverse-mode">Return value of forward and reverse mode</h3>
+<p>For this function, $f(x, y) := xy + \frac{1}{y}$,
+the “derivative” (i.e., the Jacobian) of this function is a row vector with two entries:</p>
+<p>$$
+\begin{bmatrix}
+\frac{\partial f}{\partial x} &amp; \frac{\partial f}{\partial y}
+\end{bmatrix}
+$$</p>
+<ul>
+<li>
+<p><code>__enzyme_fwddiff</code></p>
+<p><em>forward mode</em>: compute<br />
+$$
+d\mathbf{f} := \mathbf{J} \cdot d\mathbf{x},
+$$
+where $d\mathbf{x} = [dx;; dy]^\top$
+In this case, the dimension of result of the forward mode is a scalar, i.e., the same as the dimension of the output.</p>
+</li>
+<li>
+<p><code>__enzyme_autodiff</code></p>
+<p><em>reverse mode</em> differentiation*: compute<br />
+$$
+\mu := \mathbf{J}^\top \lambda
+$$
+here $\lambda$
+is a scalar, for example, if we want the derivative, then $\lambda = 1$
+In this case, the dimention of the result of the reverse mode is a vector, i.e., the same as the dimension of the input.</p>
+<p>In the later sections applying these modes, we will focuse on how to pass $d\mathbf{x}$ and $\lambda$, as well as which variable stores the output.</p>
+</li>
+</ul>
+<h3 id="translation-unit-in-the-example-code-snippet">Translation unit in the example code snippet</h3>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>#include &lt;iostream&gt;
+</span><span>#include &lt;enzyme/enzyme&gt; 
+</span><span>
+</span><span>int enzyme_dup;
+</span><span>int enzyme_dupnoneed;
+</span><span>int enzyme_out;
+</span><span>int enzyme_const;
+</span><span>
+</span><span>template &lt; typename return_type, typename ... T &gt;
+</span><span>return_type __enzyme_fwddiff(void*, T ... );
+</span><span>
+</span><span>template &lt; typename return_type, typename ... T &gt;
+</span><span>return_type __enzyme_autodiff(void*, T ... );
+</span></code></pre>
+<h3 id="forward-mode">Forward mode</h3>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>double df_dx = __enzyme_fwddiff&lt;double&gt;((void*)f, enzyme_dup, x, dx); 
+</span></code></pre>
+<p>Here, <code>double</code> is the <code>return_type</code>. The shadow argument <code>dx</code> stores the directional derivative.</p>
+<p>e.g., if <code>x</code> is a vector of inputs, then</p>
+<p>$$
+df_dx = \frac{df}{dx_{0}} \cdot dx[0] + \frac{df}{dx_{1}} \cdot dx[1] + …
+$$</p>
+<h4 id="return-by-value">Return-By-Value</h4>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>double f(double x) { return x * x; }
+</span></code></pre>
+<p>In this case, we usually use <code>enzyme_dup</code> to annotate the input and the shadow argument (the directioal vectors).
+The return value is the jacobian-vector product (JVP).</p>
+<p>e.g.,</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>double x = 5.0;
+</span><span>double dx = 1.0;
+</span><span>double df_dx = __enzyme_fwddiff&lt;double&gt;((void*)f, enzyme_dup, x, dx); 
+</span><span>printf(&quot;f(x) = %f, f&#39;(x) = %f&quot;, f(x), df_dx);
+</span></code></pre>
+<h4 id="return-by-reference">Return-By-Reference</h4>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>void f(double x, double y, double &amp; output) { output = x * y + 1.0 / y; }
+</span></code></pre>
+<p>Still we store the direction vector in the shadow argument, and we use another variable for storing the function output, whose shadow argument stores the JVP.</p>
+<p>e.g.,</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>double z = 0;
+</span><span>double dz = 0;
+</span><span>#if 1
+</span><span>__enzyme_fwddiff&lt;void&gt;((void*)f, enzyme_dup, x, dx, 
+</span><span>                                 enzyme_dup, y, dy, 
+</span><span>                                 enzyme_dup, &amp;z, &amp;dz);
+</span></code></pre>
+<p><code>z</code> stores the function primal value and <code>dz</code> stores the JVP. We need to pass the reference because we are going to change the value.</p>
+<h3 id="reverse-mode">Reverse mode</h3>
+<p>Reverse mode computes the vector-Jacobian product (VJP).</p>
+<h4 id="return-by-value-1">Return-By-Value</h4>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>struct double2(double x, y;);
+</span><span>
+</span><span>auto [mu_x, mu_y] = __enzyme_autodiff&lt;double&gt;((void*)f, enzyme_out, x, enzyme_out, y);
+</span></code></pre>
+<p>Here, if we use <code>enzyme_out</code> annotation, the default $\lambda = 1$.
+In this case, the output is the gradients themselves.</p>
+<h4 id="return-by-reference-1">Return-By-Reference</h4>
+<p>It looks like that when using reverse mode, we are mostly using <code>enzyme_out</code> annotation.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>double lambda = 2.0;
+</span><span>
+</span><span>double2 mu = __enzyme_autodiff&lt;double2&gt;((void*)f, enzyme_out, x, 
+</span><span>                                                  enzyme_out, y, 
+</span><span>                                                  enzyme_dup, &amp;z, &amp;lambda); 
+</span></code></pre>
+<p>The shadow argument w.r.t the output <code>z</code> is the <code>lambda</code>. The way to annotate the output is passing the pointer.
+The function output is the VJP. Again, <code>double2</code> is the return type.</p>
+<h2 id="using-matrix">Using matrix</h2>
+<p>Only use matrix with fixed size, instead of <code>MatrixXd</code>.</p>
+
+</div>
+
+
+    </div>
+  </section>
+
+<footer>
+  Built using <a href="https://www.getzola.org/">Zola</a> &middot; Adapted from <a href="https://people.csail.mit.edu/rachit/">Rachit Nigam</a>
+</footer>
+</body>
+
+</html>
